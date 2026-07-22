@@ -1,20 +1,7 @@
-# Python
-__pycache__/
-*.py[cod]
-*.pyo
-
-# Virtual environment
+cat > .gitignore <<'EOF'
 .venv/
-venv/
-
-# macOS
+__pycache__/
+*.pyc
 .DS_Store
-
-# IDE
-.vscode/
-
-# Streamlit cache
 .streamlit/
-
-# Model/cache files
-*.log
+EOF
