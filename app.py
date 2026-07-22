@@ -139,7 +139,10 @@ def main():
     # the iframe's internal JS-only tab state, so the dashboard's nav() function
     # syncs a ?page=live URL param on this top-level page whenever the user enters
     # or leaves the Live Prediction tab (see assets/dashboard_template.html).
-    active_page = st.query_params.get("page", "home")
+    st.title("🚨 DEPLOYMENT TEST")
+    st.success("This is the latest version of app.py")
+
+    active_page = "home"
 
     st.sidebar.title("ForecastPH controls")
     st.sidebar.caption(
@@ -147,38 +150,21 @@ def main():
         "area) is the original HTML/CSS/JS design, now wired to real data."
     )
 
-    if active_page == "live":
-        st.subheader("Live Prediction")
-        st.caption(
-            "Upload an OHLCV CSV to generate a next-day forecast — this powers "
-            "the Live Prediction tab in the dashboard below."
-        )
+    st.subheader("📈 Live Prediction")
 
-        if "live_reset_counter" not in st.session_state:
-            st.session_state["live_reset_counter"] = 0
+    upload_value = csv_upload_widget(key="live_csv")
 
-        upload_value = csv_upload_widget(
-            key=f"live_csv_uploader_{st.session_state['live_reset_counter']}"
-        )
+    if upload_value and upload_value.get("content") is not None:
+        try:
+            file_bytes = upload_value["content"].encode("utf-8")
+            st.session_state["live_prediction"] = _run_live_prediction(file_bytes)
+        except CSVValidationError as exc:
+            st.error(str(exc))
 
-        if upload_value and upload_value.get("content") is not None:
-            try:
-                file_bytes = upload_value["content"].encode("utf-8")
-                st.session_state["live_prediction"] = _run_live_prediction(file_bytes)
-            except CSVValidationError as exc:
-                st.session_state["live_prediction"] = {"ready": False}
-                st.error(str(exc))
-
-        if st.session_state.get("live_prediction", {}).get("ready"):
-            if st.button("Clear uploaded data"):
-                st.session_state["live_prediction"] = {"ready": False}
-                st.session_state["live_reset_counter"] += 1
-                st.rerun()
-    else:
-        st.sidebar.info(
-            "Open the \u26a1 Live Prediction tab in the dashboard below to upload "
-            "an OHLCV CSV and generate a forecast."
-        )
+    if st.session_state.get("live_prediction", {}).get("ready"):
+        if st.button("Clear uploaded data"):
+            st.session_state["live_prediction"] = {"ready": False}
+            st.rerun()
 
     app_data, missing = build_app_data(active_page)
 
