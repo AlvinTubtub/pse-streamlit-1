@@ -1,0 +1,6 @@
+streamlit>=1.60
+pandas
+numpy
+scikit-learn
+statsmodels
+torch
