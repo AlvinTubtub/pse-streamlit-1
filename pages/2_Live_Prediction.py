@@ -67,55 +67,47 @@ if predict:
 
     pred = result["next_close"]
 
-st.subheader("Prediction Results")
+    st.subheader("Prediction Results")
 
-col1, col2, col3 = st.columns(3)
+    col1, col2, col3 = st.columns(3)
 
-latest_close = df.iloc[-1]["Close"]
+    latest_close = df.iloc[-1]["Close"]
 
-with col1:
-    st.metric(
-        "Latest Close",
-        f"{latest_close:,.2f}",
+    with col1:
+        st.metric(
+            "Latest Close",
+            f"{latest_close:,.2f}",
+        )
+
+    with col2:
+
+        if model == "Lag Regression":
+            value = pred["lag"]
+
+        elif model == "ARIMA":
+            value = pred["arima"]
+
+        elif model == "LSTM":
+            value = pred["lstm"]
+
+        else:
+            value = sum(pred.values()) / len(pred)
+
+        st.metric(
+            "Predicted Close",
+            f"{value:,.2f}",
+            f"{value-latest_close:,.2f}",
+        )
+
+    with col3:
+        direction = "▲ Bullish" if value < latest_close else "▼ Bearish"
+        st.metric("Direction", direction)
+
+    chart = (
+        df[["Date", "Close"]]
+        .copy()
+        .set_index("Date")    
     )
 
-with col2:
-
-    if model == "Lag Regression":
-        value = pred["lag"]
-
-    elif model == "ARIMA":
-        value = pred["arima"]
-
-    elif model == "LSTM":
-        value = pred["lstm"]
-
-    else:
-        value = sum(pred.values()) / len(pred)
-
-    st.metric(
-        "Predicted Close",
-        f"{value:,.2f}",
-        f"{value-latest_close:,.2f}",
-    )
-
-with col3:
-
-    direction = "▲ Bullish"
-
-    if value < latest_close:
-        direction = "▼ Bearish"
-
-    st.metric(
-        "Direction",
-        direction,
-    )
-
-chart = (
-    df[["Date", "Close"]]
-    .copy()
-    .set_index("Date")
-)
-
-st.subheader("Historical Prices")
-st.line_chart(chart)
+    st.subheader("Historical Prices")
+    st.line_chart(chart)
