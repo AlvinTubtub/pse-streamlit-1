@@ -18,9 +18,12 @@ st.caption(
 )
 
 uploaded_file = st.file_uploader(
-    "Upload OHLCV CSV",
+    "Drag & drop your OHLCV CSV here or click to browse from your computer",
     type=["csv"],
+    help="Required columns: `Date, Open, High, Low, Close, Volume`",
 )
+
+st.caption("Required columns: `Date, Open, High, Low, Close, Volume`")
 
 if uploaded_file is None:
     st.info("Please upload a CSV file.")
